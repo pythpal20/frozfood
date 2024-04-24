@@ -28,41 +28,54 @@ $encrypter = encrypt_data($user['user_id'], $keys);
             <!-- query menu -->
             <?php
             $roleID = $this->session->userdata('role_id');
-            $queryMenu = "SELECT `tb_menus`.`menu_id`, `menu`
-                FROM `user_menu` 
+            $queryMenu = "SELECT `tb_menus`.`menu_id`, `tb_menus`.`title`, `tb_menus`.`menu_level`, `tb_menus`.`url`, `tb_menus`.`icon`, `tb_menus`.`parent_id`
+                FROM `tb_menus` 
                 JOIN `user_access_menu` ON `tb_menus`.`menu_id` = `user_access_menu`.`menu_id`
-            WHERE `user_access_menu`.`role_id` = $roleID
-            ORDER BY `tb_menus`.`nourut` ASC";
+            WHERE `user_access_menu`.`role_id` = $roleID AND `tb_menus`.`is_active` = '1' AND `tb_menus`.`menu_level` = 'main_menu' OR `tb_menus`.`menu_level` = 'header' 
+            ORDER BY `tb_menus`.`menu_order` ASC";
             $menu = $this->db->query($queryMenu)->result_array();
             ?>
             <!-- Looping data Menu -->
-            <?php foreach ($menu as $m) : ?>
-                <div class="nav-label ml-2 text-danger">
-                    <?= $m['menu'] ?>
-                </div>
+            <?php foreach ($menu as $m) { ?>
                 <!-- submenu -->
-                <?php
-                $menuID = $m['id'];
-                $querySubMenu = "SELECT * FROM `user_sub_menu` JOIN `user_menu` ON `user_sub_menu`.`menu_id` = `user_menu`.`id`
-                WHERE `user_sub_menu`.`menu_id` = $menuID
-                AND `user_sub_menu`.`is_active` = '1' ORDER BY nourutan ASC";
-
-                $subMenu = $this->db->query($querySubMenu)->result_array();
-                ?>
-                <?php foreach ($subMenu as $sm) : ?>
-                    <?php if ($title == $sm['title']) : ?>
+                <?php if ($m['menu_level'] == 'main_menu') : ?>
+                    <?php if ($title == $m['title']) : ?>
                         <li class="nav-item active">
                         <?php else : ?>
                         <li>
                         <?php endif; ?>
-                        <a href="<?= base_url($sm['url']) ?>">
-                            <i class="<?= $sm['icon'] ?>"></i>
-                            <span class="nav-label"><?= $sm['title'] ?></span>
+                        <a href="<?= base_url($m['url']) ?>">
+                            <i class="<?= $m['icon'] ?>"></i>
+                            <span class="nav-label"><?= $m['title'] ?></span>
                         </a>
                         </li>
-                    <?php endforeach; ?>
-                    <hr class="nav-divider nav-fill">
-                <?php endforeach; ?>
+                    <?php elseif ($m['menu_level'] == 'header') : ?>
+                        <?php if ($title == $m['title']) : ?>
+                            <li class="nav-item active">
+                            <?php else : ?>
+                            <li>
+                            <?php endif; ?>
+                            <a href="<?= base_url($m['url']) ?>"><i class="<?= $m['icon'] ?>"></i> <span class="nav-label"><?= $m['title'] ?></span><span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level collapse">
+                                <?php 
+                                    $parentID   = $m['menu_id'];
+                                    $querySubmenu = "SELECT * FROM `tb_menus` WHERE `parent_id` = '$parentID' AND `menu_level` = 'sub_menu_lv1' ORDER BY `menu_order` ASC";
+                                    $subMenu = $this->db->query($querySubmenu)->result_array();
+
+                                    foreach($subMenu as $sm) :
+                                ?>
+                                <?php if($title == $sm['title']) : ?>
+                                <li class="active">
+                                <?php else : ?>
+                                <li>
+                                <?php endif;?>
+                                    <a href="<?= base_url($sm['url']) ?>"><?= $sm['title'] ?></a>
+                                </li>
+                                <?php endforeach; ?>
+                            </ul>
+                            </li>
+                        <?php endif; ?>
+                    <?php } ?>
         </ul>
 
     </div>

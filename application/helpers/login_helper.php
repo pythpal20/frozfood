@@ -14,9 +14,9 @@ function is_logged_in()
         $ci->db->select('*')
             ->from('tb_menus')
             ->where('title', $main_menu)
-            ->or_where('title', $sub_menu);
+            ->or_where('destinationUrl', $sub_menu);
         $queryMenu = $ci->db->get()->row_array();
-
+        
         if ($queryMenu) {
             $menu_id = $queryMenu['menu_id'];
 
@@ -24,14 +24,13 @@ function is_logged_in()
                 'role_id' => $role_id,
                 'menu_id' => $menu_id
             ]);
-    
+            // var_dump()
             if ($userAccess->num_rows() < 1) {
                 redirect('auth/blocked');
             }
         } else {
             redirect('auth/blocked');
         }
-
     }
 }
 
