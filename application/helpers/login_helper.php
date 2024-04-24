@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 function is_logged_in()
 {
@@ -8,17 +8,27 @@ function is_logged_in()
         redirect('auth');
     } else {
         $role_id = $ci->session->userdata('role_id');
-        $menu = $ci->uri->segment(1);
+        $main_menu = $ci->uri->segment(1);
+        $sub_menu   = $ci->uri->segment(2);
 
-        $queryMenu = $ci->db->get_where('user_menu', ['menu' => $menu])->row_array();
-        $menu_id = $queryMenu['id'];
+        $ci->db->select('*')
+            ->from('tb_menus')
+            ->where('title', $main_menu)
+            ->or_where('destinationUrl', $sub_menu);
+        $queryMenu = $ci->db->get()->row_array();
+        
+        if ($queryMenu) {
+            $menu_id = $queryMenu['menu_id'];
 
-        $userAccess = $ci->db->get_where('user_access_menu', [
-            'role_id' => $role_id,
-            'menu_id' => $menu_id
-        ]);
-
-        if ($userAccess->num_rows() < 1) {
+            $userAccess = $ci->db->get_where('user_access_menu', [
+                'role_id' => $role_id,
+                'menu_id' => $menu_id
+            ]);
+            // var_dump()
+            if ($userAccess->num_rows() < 1) {
+                redirect('auth/blocked');
+            }
+        } else {
             redirect('auth/blocked');
         }
     }

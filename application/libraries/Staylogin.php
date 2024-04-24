@@ -20,9 +20,9 @@ class Staylogin
 
             if ($user) {
                 $data = [
-                    'email' => $user['TXT_EMAIL'],
+                    'email' => $user['email'],
                     'role_id' => $user['role_id'],
-                    'nama_lengkap' => $user['TXT_NAMA'],
+                    'nama_lengkap' => $user['user_name'],
                     'is_activ' => $user['is_active']
                 ];
                 $this->CI->session->set_userdata($data);

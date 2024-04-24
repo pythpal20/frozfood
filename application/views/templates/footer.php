@@ -1,6 +1,6 @@
 <div class="footer">
     <div class="pull-right">
-        <strong>Copyright</strong> Mr. Kitchen &copy; 2021-2024
+        <strong>Copyright</strong> <a href="https://github.com/pythpal20">Pythpal20</a> - <?= date('Y') ?>
     </div>
 </div>
 
