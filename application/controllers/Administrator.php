@@ -14,9 +14,10 @@ class Administrator extends CI_Controller
     public function menu()
     {
         $data['title']  = "Menu Management";
-        $data['user'] = $this->db->get_where('tb_user', ['TXT_EMAIL' => $this->session->userdata('email')])->row_array();
-        $data['rar'] = $this->db->get_where('role_access_rights', ['id' => $this->session->userdata('rar_id')])->row_array();
-        $data['menux'] = $this->db->get('user_menu')->result_array();
+        $data['user'] = $this->db->get_where('tb_user', ['email' => $this->session->userdata('email')])->row_array();
+        
+        $this->db->order_by('menu_order', 'asc');
+        $data['menux'] = $this->db->get('tb_menus');
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);

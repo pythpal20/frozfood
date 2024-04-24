@@ -50,28 +50,29 @@ $encrypter = encrypt_data($user['user_id'], $keys);
                         </a>
                         </li>
                     <?php elseif ($m['menu_level'] == 'header') : ?>
-                        <?php if ($title == $m['title']) : ?>
-                            <li class="nav-item active">
+                        <?php $dimana = $this->uri->segment(1); ?>
+                        <?php if ( strtoupper($dimana ) == strtoupper($m['title'])) : ?>
+                            <li class="active">
                             <?php else : ?>
                             <li>
                             <?php endif; ?>
                             <a href="<?= base_url($m['url']) ?>"><i class="<?= $m['icon'] ?>"></i> <span class="nav-label"><?= $m['title'] ?></span><span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level collapse">
-                                <?php 
-                                    $parentID   = $m['menu_id'];
-                                    $querySubmenu = "SELECT * FROM `tb_menus` WHERE `parent_id` = '$parentID' AND `menu_level` = 'sub_menu_lv1' ORDER BY `menu_order` ASC";
-                                    $subMenu = $this->db->query($querySubmenu)->result_array();
+                                <?php
+                                $parentID   = $m['menu_id'];
+                                $querySubmenu = "SELECT * FROM `tb_menus` WHERE `parent_id` = '$parentID' AND `menu_level` = 'sub_menu_lv1' ORDER BY `menu_order` ASC";
+                                $subMenu = $this->db->query($querySubmenu)->result_array();
 
-                                    foreach($subMenu as $sm) :
+                                foreach ($subMenu as $sm) :
                                 ?>
-                                <?php if($title == $sm['title']) : ?>
-                                <li class="active">
-                                <?php else : ?>
-                                <li>
-                                <?php endif;?>
-                                    <a href="<?= base_url($sm['url']) ?>"><?= $sm['title'] ?></a>
-                                </li>
-                                <?php endforeach; ?>
+                                    <?php if ($title == $sm['title']) : ?>
+                                        <li class="active">
+                                        <?php else : ?>
+                                        <li>
+                                        <?php endif; ?>
+                                        <a href="<?= base_url($sm['url']) ?>"><?= $sm['title'] ?></a>
+                                        </li>
+                                    <?php endforeach; ?>
                             </ul>
                             </li>
                         <?php endif; ?>
