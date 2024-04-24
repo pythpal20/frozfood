@@ -36,8 +36,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- <script src="<?= base_url('node_modules') ?>/sweetalert2/src/sweetalert2.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+<script src="<?= base_url('node_modules') ?>/sweetalert2/src/sweetalert2.js"></script>
 
 <script src="<?= base_url('assets/'); ?>js/plugins/daterangepicker/daterangepicker.js"></script>
 <script src="<?= base_url('assets/'); ?>js/plugins/clockpicker/clockpicker.js"></script>
@@ -79,6 +79,7 @@
 
 <script src="<?= base_url('node_modules') ?>/axios/dist/axios.min.js"></script>
 <script async src="<?= base_url('assets') ?>/js/swalalertmain.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
