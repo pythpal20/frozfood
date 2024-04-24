@@ -9,7 +9,7 @@ $encrypter = encrypt_data($user['user_id'], $keys);
         <ul class="nav metismenu" id="side-menu">
             <li class="nav-header">
                 <div class="dropdown profile-element">
-                    <img alt="image" class="" src="<?= base_url('assets') ?>/images/system/logof.png" width="68%" />
+                    <img alt="image" class="" src="<?= base_url('assets') ?>/images/system/logor.png" width="68%" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="block m-t-xs font-bold"><?= $tim['role'] ?></span>
                     </a>
@@ -21,18 +21,18 @@ $encrypter = encrypt_data($user['user_id'], $keys);
                     </ul>
                 </div>
                 <div class="logo-element">
-                    HR
+                    POS
                 </div>
             </li>
             <hr class="hr-line-solid divider">
             <!-- query menu -->
             <?php
             $roleID = $this->session->userdata('role_id');
-            $queryMenu = "SELECT `user_menu`.`id`, `menu`
-                FROM `user_menu` JOIN `user_access_menu`
-                ON `user_menu`.`id` = `user_access_menu`.`menu_id`
+            $queryMenu = "SELECT `tb_menus`.`menu_id`, `menu`
+                FROM `user_menu` 
+                JOIN `user_access_menu` ON `tb_menus`.`menu_id` = `user_access_menu`.`menu_id`
             WHERE `user_access_menu`.`role_id` = $roleID
-            ORDER BY `user_menu`.`nourut` ASC";
+            ORDER BY `tb_menus`.`nourut` ASC";
             $menu = $this->db->query($queryMenu)->result_array();
             ?>
             <!-- Looping data Menu -->
