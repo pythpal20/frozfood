@@ -9,7 +9,7 @@ $encrypter = encrypt_data($user['user_id'], $keys);
         <ul class="nav metismenu" id="side-menu">
             <li class="nav-header">
                 <div class="dropdown profile-element">
-                    <img alt="image" class="" src="<?= base_url('assets') ?>/images/system/logor.png" width="68%" />
+                    <img alt="image" class="" src="<?= base_url('assets') ?>/images/system/logof.png" width="68%" />
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="block m-t-xs font-bold"><?= $tim['role'] ?></span>
                     </a>

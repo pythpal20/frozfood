@@ -5,7 +5,7 @@
 </div>
 <div class="wrapper wrapper-content">
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <?= $this->session->flashdata('message'); ?>
             <div class="ibox">
                 <div class="ibox-title">
@@ -28,65 +28,30 @@
                                         <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?></div>
                                     </li>
                                 <?php elseif($me->menu_level == 'header'): ?>
+                                    <?php 
+                                        $level2 = "SELECT * FROM `tb_menus` WHERE `parent_id` = '$me->menu_id' AND `menu_level` = 'sub_menu_lv1' ORDER BY `menu_order`";
+                                        $sublv = $this->db->query($level2)->result_array();
+
+                                        // foreach($sublv AS $sl) :
+                                    ?>
                                 <li class="dd-item" data-id="<?= $me->menu_id; ?>">
                                     <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?></div>
                                     <ol class="dd-list">
-                                        <li class="dd-item" data-id="3">
-                                            <div class="dd-handle">3
-                                                - Adipiscing
-                                                elit</div>
+                                        <?php foreach($sublv AS $sl) : ?>
+                                        <li class="dd-item" data-id="<?= $sl['menu_id'] ?>">
+                                            <div class="dd-handle"><?= $sl['menu_order'] ?> - <?= $sl['title'] ?></div>
                                         </li>
-                                        <li class="dd-item" data-id="4">
-                                            <div class="dd-handle">4
-                                                - Nonummy nibh</div>
-                                        </li>
+                                        <?php endforeach; ?>
                                     </ol>
                                 </li>
                                 <?php endif; ?>
                             <?php endforeach; ?>
-                            <li class="dd-item" data-id="2">
-                                <div class="dd-handle">2 - Dolor
-                                    sit</div>
-                                <ol class="dd-list">
-                                    <li class="dd-item" data-id="3">
-                                        <div class="dd-handle">3
-                                            - Adipiscing
-                                            elit</div>
-                                    </li>
-                                    <li class="dd-item" data-id="4">
-                                        <div class="dd-handle">4
-                                            - Nonummy nibh</div>
-                                    </li>
-                                </ol>
-                            </li>
-                            <li class="dd-item" data-id="5">
-                                <div class="dd-handle">5 -
-                                    Consectetuer</div>
-                                <ol class="dd-list">
-                                    <li class="dd-item" data-id="6">
-                                        <div class="dd-handle">6
-                                            - Aliquam erat</div>
-                                    </li>
-                                    <li class="dd-item" data-id="7">
-                                        <div class="dd-handle">7
-                                            - Veniam quis</div>
-                                    </li>
-                                </ol>
-                            </li>
-                            <li class="dd-item" data-id="8">
-                                <div class="dd-handle">8 -
-                                    Tation ullamcorper</div>
-                            </li>
-                            <li class="dd-item" data-id="9">
-                                <div class="dd-handle">9 - Ea
-                                    commodo</div>
-                            </li>
                         </ol>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
+        <div class="col-lg-6">
             <div class="ibox">
                 <div class="ibox-title">
                     <h5>Sub menu</h5>
