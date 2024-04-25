@@ -13,19 +13,99 @@ class Administrator extends CI_Controller
 
     public function menu()
     {
-        $data['title']  = "Menu Management";
-        $data['user'] = $this->db->get_where('tb_user', ['email' => $this->session->userdata('email')])->row_array();
-        
-        $this->db->order_by('menu_order', 'asc');
-        $data['menux']      = $this->db->get('tb_menus');
-        $data['headmenu']   = $this->db->get_where('tb_menus', ['menu_level' => 'header']);
-        $data['ikon']       = $this->db->get('tb_icon');
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/sidebar', $data);
-        $this->load->view('templates/headbar', $data);
-        $this->load->view('administrator/menu', $data);
-        $this->load->view('templates/footer');
+        $this->form_validation->set_rules('namaMenu', 'Title', 'trim|required');
+        $this->form_validation->set_rules('level', 'Menu Level', 'trim|required');
+        $this->form_validation->set_rules('url', 'Menu URL', 'trim|required');
+        $this->form_validation->set_rules('order', 'Menu Order', 'trim|required');
+
+        if ($this->form_validation->run() ==  FALSE) {
+            # code...
+            $data['title']  = "Menu Management";
+            $data['user'] = $this->db->get_where('tb_user', ['email' => $this->session->userdata('email')])->row_array();
+
+            $this->db->order_by('menu_order', 'asc');
+            $data['menux']      = $this->db->get('tb_menus');
+            $data['headmenu']   = $this->db->get_where('tb_menus', ['menu_level' => 'header']);
+            $data['ikon']       = $this->db->get('tb_icon');
+
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/headbar', $data);
+            $this->load->view('administrator/menu', $data);
+            $this->load->view('templates/footer');
+        } else {
+            # code...
+            $namaMenu   = $this->input->post('namaMenu');
+            $level      = $this->input->post('level');
+            $parentid   = $this->input->post('parentid');
+            $url        = $this->input->post('url');
+            $icon       = $this->input->post('icon');
+            $order      = $this->input->post('order');
+
+            if ($level == 'sub_menu_lv1') {
+                $destinationUrl = explode("/", $url)[1];
+
+                $data = [
+                    'parent_id' => $parentid,
+                    'title'     => $namaMenu,
+                    'url'       => $url,
+                    'destinationUrl'    => $destinationUrl,
+                    'menu_level'    => $level,
+                    'createdby'     => $this->session->userdata('nama_lengkap'),
+                    'createdtime'   => time(),
+                    'menu_order'    => $order
+                ];
+            } else {
+                $data = [
+                    'title'     => $namaMenu,
+                    'url'       => $url,
+                    'icon'      => $icon,
+                    'menu_level'    => $level,
+                    'createdby'     => $this->session->userdata('nama_lengkap'),
+                    'createdtime'   => time(),
+                    'menu_order'    => $order
+                ];
+            }
+
+            if ($this->db->insert('tb_menus', $data)) {
+                $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">New menu added!</div>');
+                redirect('administrator/menu');
+            }
+        }
+    }
+
+    public function updateNestable()
+    {
+        $menu_data = $this->input->post('menu_data');
+
+        $menu_data_array = json_decode($menu_data, true);
+
+        // $this->recursive_save_menu_order($menu_data_array);
+
+        header('Content-Type: application/json');
+        // echo json_encode(array('status' => 'success'));
+        // echo $this->recursive_save_menu_order($menu_data_array);
+        echo json_encode($menu_data);
+    }
+
+    private function recursive_save_menu_order($menu_data_array, $parent_id = 0)
+    {
+        foreach ($menu_data_array as $menu_item) {
+            // Update urutan menu
+            $menu_id = $menu_item['id'];
+            $data = array(
+                'menu_order' => $menu_item['order'],
+                'parent_id' => $parent_id 
+            );
+            // $this->menu_model->update_menu($menu_id, $data); 
+            
+            // Jika menu item memiliki sub-menu, panggil rekursif untuk menyimpan sub-menu
+            if (!empty($menu_item['children'])) {
+                $this->recursive_save_menu_order($menu_item['children'], $menu_id);
+            }
+        }
+        return json_encode($menu_item);
     }
 
     public function user_menu()
