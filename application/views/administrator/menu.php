@@ -11,21 +11,16 @@
                 <div class="ibox-title">
                     <h5>User menu</h5>
                     <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
+                    <button class="btn btn-xs btn-secondary tambah_a" data-toggle="tooltip" rel="tooltip" title="Tambah user menu"><i class="fa fa-plus"></i> Menu</button>
                     </div>
                 </div>
                 <div class="ibox-content">
-                    <div id="toolbar">
-                        <button class="btn btn-secondary tambah_a" data-toggle="tooltip" rel="tooltip" title="Tambah user menu"><i class="fa fa-plus"></i> Menu</button>
-                    </div>
                     <div class="dd" id="nestable">
                         <ol class="dd-list">
                             <?php foreach ($menux->result() as $me) : ?>
                                 <?php if ($me->menu_level == 'main_menu') : ?>
                                     <li class="dd-item" data-id="<?= $me->menu_id; ?>">
-                                        <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?></div>
+                                        <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?> <span class="label float-right ml-1 edit" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-pencil"></i></span> <span class="label float-right hapus" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-minus"></i></span></div>
                                     </li>
                                 <?php elseif($me->menu_level == 'header'): ?>
                                     <?php 
@@ -35,11 +30,11 @@
                                         // foreach($sublv AS $sl) :
                                     ?>
                                 <li class="dd-item" data-id="<?= $me->menu_id; ?>">
-                                    <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?></div>
+                                    <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?> <span class="label float-right ml-1 edit" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-pencil"></i></span> <span class="label float-right hapus" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-minus"></i></span></div>
                                     <ol class="dd-list">
                                         <?php foreach($sublv AS $sl) : ?>
                                         <li class="dd-item" data-id="<?= $sl['menu_id'] ?>">
-                                            <div class="dd-handle"><?= $sl['menu_order'] ?> - <?= $sl['title'] ?></div>
+                                            <div class="dd-handle"><?= $sl['menu_order'] ?> - <?= $sl['title'] ?> <span class="label float-right ml-1 edit" data-menuid="<?= $sl['menu_id'] ?>"><i class="fa fa-pencil"></i></span> <span class="label float-right hapus" data-menuid="<?= $sl['menu_id'] ?>"><i class="fa fa-minus"></i></span></div>
                                         </li>
                                         <?php endforeach; ?>
                                     </ol>

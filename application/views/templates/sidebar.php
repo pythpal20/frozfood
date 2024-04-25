@@ -28,10 +28,10 @@ $encrypter = encrypt_data($user['user_id'], $keys);
             <!-- query menu -->
             <?php
             $roleID = $this->session->userdata('role_id');
-            $queryMenu = "SELECT `tb_menus`.`menu_id`, `tb_menus`.`title`, `tb_menus`.`menu_level`, `tb_menus`.`url`, `tb_menus`.`icon`, `tb_menus`.`parent_id`
+            $queryMenu = "SELECT *
                 FROM `tb_menus` 
                 JOIN `user_access_menu` ON `tb_menus`.`menu_id` = `user_access_menu`.`menu_id`
-            WHERE `user_access_menu`.`role_id` = $roleID AND `tb_menus`.`is_active` = '1' AND `tb_menus`.`menu_level` = 'main_menu' OR `tb_menus`.`menu_level` = 'header' 
+            WHERE `user_access_menu`.`role_id` = '$roleID'
             ORDER BY `tb_menus`.`menu_order` ASC";
             $menu = $this->db->query($queryMenu)->result_array();
             ?>
@@ -60,7 +60,11 @@ $encrypter = encrypt_data($user['user_id'], $keys);
                             <ul class="nav nav-second-level collapse">
                                 <?php
                                 $parentID   = $m['menu_id'];
-                                $querySubmenu = "SELECT * FROM `tb_menus` WHERE `parent_id` = '$parentID' AND `menu_level` = 'sub_menu_lv1' ORDER BY `menu_order` ASC";
+                                $querySubmenu = "SELECT * 
+                                FROM `tb_menus`
+                                JOIN `user_access_menu` ON `user_access_menu`.`menu_id`=`tb_menus`.`menu_id`
+                                WHERE `user_access_menu`.`role_id` = '$roleID' AND `parent_id` = '$parentID' AND `menu_level` = 'sub_menu_lv1' 
+                                ORDER BY `menu_order` ASC";
                                 $subMenu = $this->db->query($querySubmenu)->result_array();
 
                                 foreach ($subMenu as $sm) :
