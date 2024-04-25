@@ -18,7 +18,8 @@ class Administrator extends CI_Controller
         
         $this->db->order_by('menu_order', 'asc');
         $data['menux']      = $this->db->get('tb_menus');
-        $data['headmenu'] = $this->db->get_where('tb_menus', ['menu_level' => 'header']);
+        $data['headmenu']   = $this->db->get_where('tb_menus', ['menu_level' => 'header']);
+        $data['ikon']       = $this->db->get('tb_icon');
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);

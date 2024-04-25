@@ -76,36 +76,55 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <form id="FormMenu">
-                    <div class="form-group">
-                        <label for="namaMenu">Title</label>
-                        <input type="text" class="form-control" name="namaMenu" id="namaMenu" placeholder="Fill in the menu name">
-                    </div>
-                    <div class="form-group">
-                        <label for="level">Menu Level</label>
-                        <select name="level" id="level" class="form-control">
-                            <option value="">~ Choose ~</option>
-                            <option value="main_menu">Main Menu</option>
-                            <option value="header">Header</option>
-                            <option value="sub_menu_lv1">Sub-menu</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="parentid">Parent Menu</label>
-                        <select name="parentid" id="parentid" class="form-control">
-                            <option value="">~ Choose ~</option>
-                            <?php foreach($headmenu->result() as $hm) : ?>
-                            <option value="<?= $hm->menu_id ?>"><?= $hm->title; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary sippan" data-dismiss="modal">Save</button>
-            </div>
+            <form action="<?= base_url('administrator/menu') ?>" method="POST">
+                <div class="modal-body">
+                    <form id="FormMenu">
+                        <div class="form-group">
+                            <label for="namaMenu">Title</label>
+                            <input type="text" class="form-control" name="namaMenu" id="namaMenu" placeholder="Fill in the menu name">
+                        </div>
+                        <div class="form-group">
+                            <label for="level">Menu Level</label>
+                            <select name="level" id="level" class="form-control">
+                                <option value="">~ Choose ~</option>
+                                <option value="main_menu">Main Menu</option>
+                                <option value="header">Header</option>
+                                <option value="sub_menu_lv1">Sub-menu</option>
+                            </select>
+                        </div>
+                        <div class="form-group d-none" id="parid">
+                            <label for="parentid">Parent Menu</label>
+                            <select name="parentid" id="parentid" class="form-control">
+                                <option value="">~ Choose ~</option>
+                                <?php foreach ($headmenu->result() as $hm) : ?>
+                                    <option value="<?= $hm->menu_id ?>"><?= $hm->title; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="url">URL</label>
+                            <input type="text" name="url" id="url" class="form-control" placeholder="Fill with url . .">
+                        </div>
+                        <div class="form-group">
+                            <label for="icon">Icon</label>
+                            <select name="icon" id="icon" class="form-control chosen-icon">
+                                <option value="">~ Choose ~</option>
+                                <?php foreach ($ikon->result() as $ik) : ?>
+                                    <option value="<?= $ik->icon; ?>"><i class="<?= $ik->icon ?>"></i> <?= $ik->name ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="form-grpup">
+                            <label for="order">Menu Order</label>
+                            <input type="number" name="order" id="order" min="1" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary sippan" data-dismiss="modal">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -113,6 +132,37 @@
     $(document).ready(function() {
         $(".addMenu").click(function() {
             $("#newMenu").modal('show');
+            $(".chosen-icon").chosen();
+
+            $("#level").on('change', function() {
+                var mlv = $(this).val();
+                var title = $("#namaMenu").val();
+                if (mlv == 'sub_menu_lv1') {
+                    $("#parid").removeClass('d-none');
+                } else {
+                    $("#parid").addClass('d-none');
+                    $('#parentid').val("");
+
+                    if (checkForSpace(title)) {
+                        $("#newMenu").modal('hide');
+                        Swal.fire({
+                            title: 'Nama menu salah',
+                            text: 'Tidak boleh mengandung <spasi> untuk Header dan Main Menu',
+                            icon: 'warning',
+                            showCancelButton: false
+                        }).then((namaMenu)=> {
+                            if(namaMenu.isConfirmed) {
+                                $("#namaMenu").val("");
+                                $("#newMenu").modal('show');
+                            }
+                        })
+                    }
+                }
+            });
         });
     });
+
+    function checkForSpace(str) {
+        return str.indexOf(' ') !== -1; 
+    }
 </script>
