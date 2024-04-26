@@ -81,12 +81,10 @@ class Administrator extends CI_Controller
 
         $menu_data_array = json_decode($menu_data, true);
 
-        // $this->recursive_save_menu_order($menu_data_array);
+        $this->recursive_save_menu_order($menu_data_array);
 
         header('Content-Type: application/json');
-        // echo json_encode(array('status' => 'success'));
-        // echo $this->recursive_save_menu_order($menu_data_array);
-        echo json_encode($menu_data);
+        echo json_encode(array('status' => 'success'));
     }
 
     private function recursive_save_menu_order($menu_data_array, $parent_id = 0)
@@ -98,7 +96,8 @@ class Administrator extends CI_Controller
                 'menu_order' => $menu_item['order'],
                 'parent_id' => $parent_id 
             );
-            // $this->menu_model->update_menu($menu_id, $data); 
+            $this->load->model("menu_model");
+            $this->menu_model->update_menu($menu_id, $data); 
             
             // Jika menu item memiliki sub-menu, panggil rekursif untuk menyimpan sub-menu
             if (!empty($menu_item['children'])) {

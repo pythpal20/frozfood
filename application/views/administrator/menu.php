@@ -169,6 +169,7 @@
         function updateOutput(e) {
             var list = e.length ? e : $(e.target),
                 output = list.data('output');
+                console.log(window.JSON.stringify(list.nestable('serialize')));
             if (window.JSON) {
                 $.ajax({
                     type: 'POST',
@@ -178,22 +179,18 @@
                     },
                     dataType: 'json',
                     success: function(response) {
-                        console.log(response);
+                        // console.log(response);
                         if (response.status == 'success') {
-                            // Handle jika penyimpanan berhasil
                             console.log('Perubahan urutan menu disimpan.');
                         } else {
-                            // Handle jika terjadi kesalahan saat penyimpanan
                             console.log('Gagal menyimpan perubahan urutan menu.');
                         }
                     },
                     error: function() {
-                        // Handle jika terjadi kesalahan pada saat melakukan request AJAX
                         console.log('Terjadi kesalahan saat melakukan request AJAX.');
                     }
                 });
             } else {
-                // Jika browser tidak mendukung JSON
                 console.log('Browser tidak mendukung JSON.');
             }
         }
