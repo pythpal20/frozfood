@@ -78,51 +78,53 @@
             </div>
             <form action="<?= base_url('administrator/menu') ?>" method="POST">
                 <div class="modal-body">
-                    <form id="FormMenu">
-                        <div class="form-group">
-                            <label for="namaMenu">Title</label>
-                            <input type="text" class="form-control" name="namaMenu" id="namaMenu" placeholder="Fill in the menu name">
-                        </div>
-                        <div class="form-group">
-                            <label for="level">Menu Level</label>
-                            <select name="level" id="level" class="form-control">
-                                <option value="">~ Choose ~</option>
-                                <option value="main_menu">Main Menu</option>
-                                <option value="header">Header</option>
-                                <option value="sub_menu_lv1">Sub-menu</option>
-                            </select>
-                        </div>
-                        <div class="form-group d-none" id="parid">
-                            <label for="parentid">Parent Menu</label>
-                            <select name="parentid" id="parentid" class="form-control">
-                                <option value="">~ Choose ~</option>
-                                <?php foreach ($headmenu->result() as $hm) : ?>
-                                    <option value="<?= $hm->menu_id ?>"><?= $hm->title; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="url">URL</label>
-                            <input type="text" name="url" id="url" class="form-control" placeholder="Fill with url . .">
-                        </div>
-                        <div class="form-group">
-                            <label for="icon">Icon</label>
-                            <select name="icon" id="icon" class="form-control chosen-icon">
-                                <option value="">~ Choose ~</option>
-                                <?php foreach ($ikon->result() as $ik) : ?>
-                                    <option value="<?= $ik->icon; ?>"><i class="<?= $ik->icon ?>"></i> <?= $ik->name ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-grpup">
-                            <label for="order">Menu Order</label>
-                            <input type="number" name="order" id="order" min="1" class="form-control">
-                        </div>
-                    </form>
+                    <div class="form-group">
+                        <label for="namaMenu">Title</label>
+                        <input type="text" class="form-control" name="namaMenu" id="namaMenu" placeholder="Fill in the menu name" value="<?= set_value('namaMenu') ?>">
+                        <?= form_error('namaMenu', '<small class="text-danger">', '</small>'); ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="level">Menu Level</label>
+                        <select name="level" id="level" class="form-control">
+                            <option value="">~ Choose ~</option>
+                            <option value="main_menu">Main Menu</option>
+                            <option value="header">Header</option>
+                            <option value="sub_menu_lv1">Sub-menu</option>
+                        </select>
+                        <?= form_error('level', '<small class="text-danger">', '</small>') ?>
+                    </div>
+                    <div class="form-group d-none" id="parid">
+                        <label for="parentid">Parent Menu</label>
+                        <select name="parentid" id="parentid" class="form-control">
+                            <option value="">~ Choose ~</option>
+                            <?php foreach ($headmenu->result() as $hm) : ?>
+                                <option value="<?= $hm->menu_id ?>"><?= $hm->title; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="url">URL</label>
+                        <input type="text" name="url" id="url" class="form-control" placeholder="Fill with url . ." value="<?= set_value('url') ?>">
+                        <?= form_error('url', '<small class="text-danger">', '</small>') ?>
+                    </div>
+                    <div class="form-group" id="dicon">
+                        <label for="icon">Icon</label>
+                        <select name="icon" id="icon" class="form-control chosen-icon">
+                            <option value="">~ Choose ~</option>
+                            <?php foreach ($ikon->result() as $ik) : ?>
+                                <option value="<?= $ik->icon; ?>"><i class="<?= $ik->icon ?>"></i> <?= $ik->name ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-grpup">
+                        <label for="order">Menu Order</label>
+                        <input type="number" name="order" id="order" min="1" class="form-control" value="<?= set_value('order') ?>">
+                        <?= form_error('order', '<small class="text-danger">', '</small>') ?>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary sippan" data-dismiss="modal">Save</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
         </div>
@@ -139,8 +141,11 @@
                 var title = $("#namaMenu").val();
                 if (mlv == 'sub_menu_lv1') {
                     $("#parid").removeClass('d-none');
+                    $("#dicon").addClass('d-none');
+                    $("#icon").val("");
                 } else {
                     $("#parid").addClass('d-none');
+                    $("#dicon").removeClass('d-none');
                     $('#parentid').val("");
 
                     if (checkForSpace(title)) {
@@ -150,8 +155,8 @@
                             text: 'Tidak boleh mengandung <spasi> untuk Header dan Main Menu',
                             icon: 'warning',
                             showCancelButton: false
-                        }).then((namaMenu)=> {
-                            if(namaMenu.isConfirmed) {
+                        }).then((namaMenu) => {
+                            if (namaMenu.isConfirmed) {
                                 $("#namaMenu").val("");
                                 $("#newMenu").modal('show');
                             }
@@ -160,9 +165,53 @@
                 }
             });
         });
+
+        function updateOutput(e) {
+            var list = e.length ? e : $(e.target),
+                output = list.data('output');
+                console.log(window.JSON.stringify(list.nestable('serialize')));
+            if (window.JSON) {
+                $.ajax({
+                    type: 'POST',
+                    url: "<?= base_url('administrator/updateNestable') ?>", // Ganti dengan URL ke controller Anda yang akan menangani penyimpanan perubahan urutan menu
+                    data: {
+                        menu_data: window.JSON.stringify(list.nestable('serialize'))
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        // console.log(response);
+                        if (response.status == 'success') {
+                            console.log('Perubahan urutan menu disimpan.');
+                        } else {
+                            console.log('Gagal menyimpan perubahan urutan menu.');
+                        }
+                    },
+                    error: function() {
+                        console.log('Terjadi kesalahan saat melakukan request AJAX.');
+                    }
+                });
+            } else {
+                console.log('Browser tidak mendukung JSON.');
+            }
+        }
+        // activate Nestable for list 1
+        $('#nestable').nestable({
+            group: 1
+        }).on('change', updateOutput);
+
+        $('#nestable-menu').on('click', function(e) {
+            var target = $(e.target),
+                action = target.data('action');
+            if (action === 'expand-all') {
+                $('.dd').nestable('expandAll');
+            }
+            if (action === 'collapse-all') {
+                $('.dd').nestable('collapseAll');
+            }
+        });
     });
 
     function checkForSpace(str) {
-        return str.indexOf(' ') !== -1; 
+        return str.indexOf(' ') !== -1;
     }
 </script>
