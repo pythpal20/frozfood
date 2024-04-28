@@ -3,12 +3,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Administrator extends CI_Controller
 {
+    protected $additionaljs;
     public function __construct()
     {
         parent::__construct();
         is_logged_in();
         $this->load->library('Staylogin');
         $this->staylogin->check_and_extend_session();
+
+        $this->additionaljs = array();
     }
 
     public function menu()
@@ -29,11 +32,13 @@ class Administrator extends CI_Controller
             $data['headmenu']   = $this->db->get_where('tb_menus', ['menu_level' => 'header']);
             $data['ikon']       = $this->db->get('tb_icon');
 
+            $add['additionalJs'] = 'assets/js/custome-menu.js';
+
             $this->load->view('templates/header', $data);
             $this->load->view('templates/sidebar', $data);
             $this->load->view('templates/headbar', $data);
             $this->load->view('administrator/menu', $data);
-            $this->load->view('templates/footer');
+            $this->load->view('templates/footer', $add);
         } else {
             # code...
             $namaMenu   = $this->input->post('namaMenu');
@@ -75,6 +80,91 @@ class Administrator extends CI_Controller
         }
     }
 
+    private function menuName($id)
+    {
+        $nm = $this->db->get_where('tb_menus',['menu_id' => $id])->row_array();
+        return $nm['title'];
+    }
+
+    public function tableView()
+    {
+        $output = '';
+        $this->db->order_by('menu_order', 'asc');
+        $this->db->order_by('menu_level', 'asc');
+        $menu   = $this->db->get('tb_menus');
+
+        $output .= '<table class="table table-bordered table-striped-columns" id="nestbl">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Menu Name</th>
+                    <th>Menu Level</th>
+                    <th>Menu Parent</th>
+                    <th>URL</th>
+                    <th>Icon</th>
+                    <th>Order</th>
+                    <th>Act.</th>
+                </tr>
+            </thead>
+            <tbody>';
+        foreach ($menu->result() as $key => $row) {
+            $no = $key + 1;
+            // Jika parent id nya 0
+            $parent = $row->parent_id ? $this->menuName($row->parent_id) : '<i>(None)</i>';
+            $output .='<tr>
+            <td>'. $no++ .'</td>';
+            if($row->menu_level == 'sub_menu_lv1') { 
+                $output .='<td class="text-right text-body-emphasis">'.$row->title .'</td>';
+            } else {
+                $output .='<td>'.$row->title .'</td>';
+            }
+                $output .= '<td>'.$row->menu_level .'</td>
+                <td>'. $parent . '</td>
+                <td>'. $row->url . '</td>
+                <td><i class="' . $row->icon  . '"></i></td>
+                <td>'. $row->menu_order . '</td>
+                <td class="text-center"><button class="btn btn-success btn-xs btnEdit" data-id="' . $row->menu_id . '" data-order="' . $row->menu_order . '"><i class="fa fa-edit"></i></button></td>
+            </tr>';
+        }
+        $output .= '</tbody>
+        </table>';
+
+        echo $output;
+    }
+
+    public function listView()
+    {
+        $output = '';
+        $this->db->order_by('menu_order', 'asc');
+        $menu   = $this->db->get('tb_menus');
+
+        $output .='<div class="dd" id="nestable">
+                        <ol class="dd-list">';
+                            foreach ($menu->result() as $me) {
+                                if ($me->menu_level == 'main_menu') {
+                                    $output .='<li class="dd-item animated bounceInRight" data-id="' . $me->menu_id . '">
+                                        <div class="dd-handle bg-primary">' . $me->menu_order . ' - ' . $me->title . '</div>
+                                    </li>';
+                                } elseif ($me->menu_level == 'header') {
+                                    $level2 = "SELECT * FROM `tb_menus` WHERE `parent_id` = '$me->menu_id' AND `menu_level` = 'sub_menu_lv1' ORDER BY `menu_order`";
+                                    $sublv = $this->db->query($level2)->result_array();
+                                    $output .='<li class="dd-item animated bounceInRight" data-id="' . $me->menu_id . '">
+                                        <div class="dd-handle bg-info">' . $me->menu_order . ' - ' . $me->title . '</div>
+                                        <ol class="dd-list">';
+                                            foreach ($sublv as $sl) {
+                                                $output .='<li class="dd-item animated bounceInRight" data-id="' . $sl['menu_id'] . '">
+                                                    <div class="dd-handle">'. $sl['menu_order'] . ' - ' . $sl['title'] .'</div>
+                                                </li>';
+                                            }
+                                        $output .='</ol>
+                                    </li>';
+                                        }
+                                    }
+                        $output .='</ol>
+                    </div>';
+        echo $output;
+    }
+
     public function updateNestable()
     {
         $menu_data = $this->input->post('menu_data');
@@ -85,26 +175,86 @@ class Administrator extends CI_Controller
 
         header('Content-Type: application/json');
         echo json_encode(array('status' => 'success'));
+        // echo $this->recursive_save_menu_order($menu_data_array);
     }
 
     private function recursive_save_menu_order($menu_data_array, $parent_id = 0)
     {
-        foreach ($menu_data_array as $menu_item) {
+        // $data = array();
+        $menu_order = 0;
+        $submenu_order = 0;
+        foreach ($menu_data_array as $key => $menu_item) {
             // Update urutan menu
             $menu_id = $menu_item['id'];
-            $data = array(
-                'menu_order' => $menu_item['order'],
-                'parent_id' => $parent_id 
-            );
-            $this->load->model("menu_model");
-            $this->menu_model->update_menu($menu_id, $data); 
-            
-            // Jika menu item memiliki sub-menu, panggil rekursif untuk menyimpan sub-menu
-            if (!empty($menu_item['children'])) {
-                $this->recursive_save_menu_order($menu_item['children'], $menu_id);
+            $menu = $this->db->get_where("tb_menus", ["menu_id" => $menu_id])->result();
+            $menu_type  = $menu[0]->menu_level;
+            $par_id     = $menu[0]->parent_id;
+            // $data[] = array($menu_item['']);
+
+            $data = [];
+            $data[$key] = $menu_item;
+            if ($par_id == 'null') {
+                $menu_order++;
+                $order = $menu_order;
+                if ($menu_type == 'header') {
+                    $type = 'header';
+                    // $this->db->set('parent_id', $menu_item['id']);
+                    $this->db->set('menu_order', $order);
+                    $this->db->set('menu_level', $type);
+                    $this->db->where('menu_id', $menu_id);
+                    $this->db->update('tb_menus');
+                } else if ($menu_type == 'main_menu') {
+                    $type = 'main_menu';
+                    // $this->db->set('parent_id', $menu_item['id']);
+                    $this->db->set('menu_order', $order);
+                    $this->db->set('menu_level', $type);
+                    $this->db->where('menu_id', $menu_id);
+                    $this->db->update('tb_menus');
+                } else {
+                    $type = 'sub_menu_lv1';
+                    $this->db->set('parent_id', $menu_item['id']);
+                    $this->db->set('menu_order', $order);
+                    $this->db->set('menu_level', $type);
+                    $this->db->where('menu_id', $menu_id);
+                    $this->db->update('tb_menus');
+                }
+            } else {
+                $submenu_order++;
+                $order = $submenu_order;
+                if ($menu_type == 'header') {
+                    $type = 'header';
+                    // $this->db->set('parent_id', $menu_item['id']);
+                    $this->db->set('menu_order', $order);
+                    $this->db->set('menu_level', $type);
+                    $this->db->where('menu_id', $menu_id);
+                    $this->db->update('tb_menus');
+                } elseif ($menu_type == 'main_menu') {
+                    $type = 'main_menu';
+                    // $this->db->set('parent_id', $menu_item['id']);
+                    $this->db->set('menu_order', $order);
+                    $this->db->set('menu_level', $type);
+                    $this->db->where('menu_id', $menu_id);
+                    $this->db->update('tb_menus');
+                } else {
+                    $type = 'sub_menu_lv1';
+                    $this->db->set('parent_id', $menu_item['id']);
+                    $this->db->set('menu_order', $order);
+                    $this->db->set('menu_level', $type);
+                    $this->db->where('menu_id', $menu_id);
+                    $this->db->update('tb_menus');
+                }
             }
+
+            // $sql = "Update tb_menus SET parent_id =" . $menu_item['id'] . ", menu_order=" . $order . ", menu_level='" . $type . "' WHERE menu_id=" . $menu_id;
+            // $this->db->query($sql);
+
+
+            // // Jika menu item memiliki sub-menu, panggil rekursif untuk menyimpan sub-menu
+            // if (!empty($menu_item['children'])) {
+            //     $this->recursive_save_menu_order($menu_item['children'], $menu_id);
+            // }
         }
-        return json_encode($menu_item);
+        // return json_encode($data);
     }
 
     public function user_menu()

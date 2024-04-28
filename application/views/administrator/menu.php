@@ -5,22 +5,23 @@
 </div>
 <div class="wrapper wrapper-content">
     <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-6" id="vDefault">
             <?= $this->session->flashdata('message'); ?>
-            <div class="ibox">
+            <div class="ibox animated fadeInRight">
                 <div class="ibox-title">
                     <h5>User menu</h5>
                     <div class="ibox-tools">
-                        <button class="btn btn-xs btn-secondary addMenu" data-toggle="tooltip" rel="tooltip" title="Tambah user menu"><i class="fa fa-plus"></i> Menu</button>
+                        <button class="btn btn-xs btn-info viewTable" id="buttonChangeView"><i class="fa fa-table"></i> View</button>
+                        <button class="btn btn-xs btn-success addMenu" data-toggle="tooltip" rel="tooltip" title="Tambah user menu"><i class="fa fa-plus"></i> Menu</button>
                     </div>
                 </div>
-                <div class="ibox-content">
+                <div class="ibox-content animated bounceInDown" id="nest">
                     <div class="dd" id="nestable">
                         <ol class="dd-list">
                             <?php foreach ($menux->result() as $me) : ?>
                                 <?php if ($me->menu_level == 'main_menu') : ?>
-                                    <li class="dd-item" data-id="<?= $me->menu_id; ?>">
-                                        <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?> <span class="label float-right ml-1 edit" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-pencil"></i></span> <span class="label float-right hapus" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-minus"></i></span></div>
+                                    <li class="dd-item animated bounceInRight" data-id="<?= $me->menu_id; ?>">
+                                        <div class="dd-handle bg-primary"><?= $me->menu_order . " - " . $me->title; ?> </div>
                                     </li>
                                 <?php elseif ($me->menu_level == 'header') : ?>
                                     <?php
@@ -29,12 +30,12 @@
 
                                     // foreach($sublv AS $sl) :
                                     ?>
-                                    <li class="dd-item" data-id="<?= $me->menu_id; ?>">
-                                        <div class="dd-handle"><?= $me->menu_order . " - " . $me->title; ?> <span class="label float-right ml-1 edit" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-pencil"></i></span> <span class="label float-right hapus" data-menuid="<?= $me->menu_id ?>"><i class="fa fa-minus"></i></span></div>
+                                    <li class="dd-item animated bounceInRight" data-id="<?= $me->menu_id; ?>">
+                                        <div class="dd-handle bg-info"><?= $me->menu_order . " - " . $me->title; ?> </div>
                                         <ol class="dd-list">
                                             <?php foreach ($sublv as $sl) : ?>
-                                                <li class="dd-item" data-id="<?= $sl['menu_id'] ?>">
-                                                    <div class="dd-handle"><?= $sl['menu_order'] ?> - <?= $sl['title'] ?> <span class="label float-right ml-1 edit" data-menuid="<?= $sl['menu_id'] ?>"><i class="fa fa-pencil"></i></span> <span class="label float-right hapus" data-menuid="<?= $sl['menu_id'] ?>"><i class="fa fa-minus"></i></span></div>
+                                                <li class="dd-item animated bounceInRight" data-id="<?= $sl['menu_id'] ?>">
+                                                    <div class="dd-handle"><?= $sl['menu_order'] ?> - <?= $sl['title'] ?> </div>
                                                 </li>
                                             <?php endforeach; ?>
                                         </ol>
@@ -44,30 +45,15 @@
                         </ol>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="ibox">
-                <div class="ibox-title">
-                    <h5>Sub menu</h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                    <div id="toolbar2">
-                        <button class="btn btn-secondary tambah_b" data-toggle="tooltip" rel="tooltip" title="Tambah user menu"><i class="fa fa-plus"></i> Sub Menu</button>
-                    </div>
-                    <table id="table_b" class="table table-hover" data-show-toggle="true" data-show-pagination-switch="true" data-page-size="5" data-show-columns="true" data-mobile-responsive="true" data-advanced-search="true" data-id-table="advancedTable" data-check-on-init="true" data-advanced-search="true" data-id-table="advancedTable" data-show-columns-toggle-all="true"></table>
+                <div class="ibox-footer">
+                    <small><sup class="text-danger">*</sup> Perubahan urutan menu lewat drag n' drop hanya antara main-header, sub-menu belum termasuk</small>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- modal window -->
-<div class="modal inmodal fadeIn" id="newMenu" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal inmodal animated fadeInRight" id="newMenu" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -130,88 +116,8 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {
-        $(".addMenu").click(function() {
-            $("#newMenu").modal('show');
-            $(".chosen-icon").chosen();
-
-            $("#level").on('change', function() {
-                var mlv = $(this).val();
-                var title = $("#namaMenu").val();
-                if (mlv == 'sub_menu_lv1') {
-                    $("#parid").removeClass('d-none');
-                    $("#dicon").addClass('d-none');
-                    $("#icon").val("");
-                } else {
-                    $("#parid").addClass('d-none');
-                    $("#dicon").removeClass('d-none');
-                    $('#parentid').val("");
-
-                    if (checkForSpace(title)) {
-                        $("#newMenu").modal('hide');
-                        Swal.fire({
-                            title: 'Nama menu salah',
-                            text: 'Tidak boleh mengandung <spasi> untuk Header dan Main Menu',
-                            icon: 'warning',
-                            showCancelButton: false
-                        }).then((namaMenu) => {
-                            if (namaMenu.isConfirmed) {
-                                $("#namaMenu").val("");
-                                $("#newMenu").modal('show');
-                            }
-                        })
-                    }
-                }
-            });
-        });
-
-        function updateOutput(e) {
-            var list = e.length ? e : $(e.target),
-                output = list.data('output');
-                console.log(window.JSON.stringify(list.nestable('serialize')));
-            if (window.JSON) {
-                $.ajax({
-                    type: 'POST',
-                    url: "<?= base_url('administrator/updateNestable') ?>", // Ganti dengan URL ke controller Anda yang akan menangani penyimpanan perubahan urutan menu
-                    data: {
-                        menu_data: window.JSON.stringify(list.nestable('serialize'))
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        // console.log(response);
-                        if (response.status == 'success') {
-                            console.log('Perubahan urutan menu disimpan.');
-                        } else {
-                            console.log('Gagal menyimpan perubahan urutan menu.');
-                        }
-                    },
-                    error: function() {
-                        console.log('Terjadi kesalahan saat melakukan request AJAX.');
-                    }
-                });
-            } else {
-                console.log('Browser tidak mendukung JSON.');
-            }
-        }
-        // activate Nestable for list 1
-        $('#nestable').nestable({
-            group: 1
-        }).on('change', updateOutput);
-
-        $('#nestable-menu').on('click', function(e) {
-            var target = $(e.target),
-                action = target.data('action');
-            if (action === 'expand-all') {
-                $('.dd').nestable('expandAll');
-            }
-            if (action === 'collapse-all') {
-                $('.dd').nestable('collapseAll');
-            }
-        });
-    });
-
-    function checkForSpace(str) {
-        return str.indexOf(' ') !== -1;
-    }
+<script async>
+    let changeOrder = "<?= base_url('administrator/updateNestable') ?>";
+    let viewTable = "<?= base_url('administrator/tableView'); ?>";
+    let viewList = "<?= base_url('administrator/listView'); ?>";
 </script>

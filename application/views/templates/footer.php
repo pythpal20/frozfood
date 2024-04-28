@@ -81,6 +81,11 @@
 <script async src="<?= base_url('assets') ?>/js/swalalertmain.js"></script>
 <script src="<?= base_url('assets/') ?>js/plugins/nestable/jquery.nestable.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<?php
+if (isset($additionalJs)) {
+    echo '<script src="' . base_url($additionalJs) . '"></script>';
+}
+?>
 
 <script>
     $(document).ready(function() {
