@@ -15,12 +15,22 @@ $(document).on('click', '.viewTable', async function () {
 
 async function menuTable() {
     try {
-        const response = await fetch(viewTable);
+        const timestamp = new Date().getTime();
+        const response = await fetch(viewTable + '?_=' + timestamp);
+
         if (!response.ok) {
             throw new Error("HTTP error! status: " + response.status);
         }
         const resultHtml = await response.text();
         document.getElementById("nest").innerHTML = resultHtml;
+        $(".nestbl").bootstrapTable({
+            search: true,
+            pagination: true
+        });
+
+        $('body').on('click', '#nestbl .btnEdit', function () {
+            alert('ta da')
+        });
     } catch (error) {
         Swal.fire({
             title: 'Error',
@@ -32,7 +42,8 @@ async function menuTable() {
 
 async function menuList() {
     try {
-        const response = await fetch(viewList);
+        const timestamp = new Date().getTime();
+        const response = await fetch(viewList + '?_=' + timestamp);
         if (!response.ok) {
             throw new Error("HTTP error! status: " + response.status);
         }
@@ -105,40 +116,7 @@ $(document).ready(function () {
         });
     });
 
-    function updateOutput(e) {
-        var list = e.length ? e : $(e.target),
-            output = list.data('output');
-        if (window.JSON) {
-            $.ajax({
-                type: 'POST',
-                url: changeOrder,
-                data: {
-                    menu_data: window.JSON.stringify(list.nestable('serialize'))
-                },
-                dataType: 'json',
-                success: function (response) {
-                    console.log(response);
-                    if (response.status == 'success') {
-                        console.log('Perubahan urutan menu disimpan.');
-                        location.reload();
-                    } else {
-                        console.log('Gagal menyimpan perubahan urutan menu.');
-                        Swal.fire(
-                            'Gagal Re-order',
-                            'Tidak ada perubahan',
-                            'error'
-                        );
-                        location.reload();
-                    }
-                },
-                error: function () {
-                    console.log('Terjadi kesalahan saat melakukan request AJAX.');
-                }
-            });
-        } else {
-            console.log('Browser tidak mendukung JSON.');
-        }
-    }
+
     // activate Nestable for list 1
     $('#nestable').nestable({
         group: 1
@@ -161,6 +139,41 @@ $(document).ready(function () {
 
 
 });
+
+function updateOutput(e) {
+    var list = e.length ? e : $(e.target),
+        output = list.data('output');
+    if (window.JSON) {
+        $.ajax({
+            type: 'POST',
+            url: changeOrder,
+            data: {
+                menu_data: window.JSON.stringify(list.nestable('serialize'))
+            },
+            dataType: 'json',
+            success: function (response) {
+                console.log(response);
+                if (response.status == 'success') {
+                    console.log('Perubahan urutan menu disimpan.');
+                    location.reload();
+                } else {
+                    console.log('Gagal menyimpan perubahan urutan menu.');
+                    Swal.fire(
+                        'Gagal Re-order',
+                        'Tidak ada perubahan',
+                        'error'
+                    );
+                    location.reload();
+                }
+            },
+            error: function () {
+                console.log('Terjadi kesalahan saat melakukan request AJAX.');
+            }
+        });
+    } else {
+        console.log('Browser tidak mendukung JSON.');
+    }
+}
 
 function checkForSpace(str) {
     return str.indexOf(' ') !== -1;
