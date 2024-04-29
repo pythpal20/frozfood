@@ -93,16 +93,16 @@ class Administrator extends CI_Controller
         $this->db->order_by('menu_level', 'asc');
         $menu   = $this->db->get('tb_menus');
 
-        $output .= '<table class="table table-bordered table-striped-columns" id="nestbl">
+        $output .= '<table class="table table-bordered table-striped-columns nestbl" id="nestbl" data-show-search-clear-button="true">
             <thead>
                 <tr>
-                    <th>No.</th>
-                    <th>Menu Name</th>
-                    <th>Menu Level</th>
-                    <th>Menu Parent</th>
-                    <th>URL</th>
-                    <th>Icon</th>
-                    <th>Order</th>
+                    <th data-sortable="true">No.</th>
+                    <th data-sortable="true">Menu Name</th>
+                    <th data-sortable="true">Menu Level</th>
+                    <th data-sortable="true">Menu Parent</th>
+                    <th data-sortable="true">URL</th>
+                    <th data-sortable="true">Icon</th>
+                    <th data-sortable="true">Order</th>
                     <th>Act.</th>
                 </tr>
             </thead>
@@ -114,14 +114,14 @@ class Administrator extends CI_Controller
             $output .='<tr>
             <td>'. $no++ .'</td>';
             if($row->menu_level == 'sub_menu_lv1') { 
-                $output .='<td class="text-right text-body-emphasis">'.$row->title .'</td>';
+                $output .='<td class="text-right">'.$row->title .'</td>';
             } else {
-                $output .='<td>'.$row->title .'</td>';
+                $output .='<td class="table-info text-black">'.$row->title .'</td>';
             }
                 $output .= '<td>'.$row->menu_level .'</td>
                 <td>'. $parent . '</td>
                 <td>'. $row->url . '</td>
-                <td><i class="' . $row->icon  . '"></i></td>
+                <td class="text-center"><i class="' . $row->icon  . '"></i></td>
                 <td>'. $row->menu_order . '</td>
                 <td class="text-center"><button class="btn btn-success btn-xs btnEdit" data-id="' . $row->menu_id . '" data-order="' . $row->menu_order . '"><i class="fa fa-edit"></i></button></td>
             </tr>';
@@ -322,23 +322,23 @@ class Administrator extends CI_Controller
     }
     public function role()
     {
-        $data['title'] = 'User Role';
-        $data['user'] = $this->db->get_where('tb_user', ['TXT_EMAIL' => $this->session->userdata('email')])->row_array();
-        $data['rar'] = $this->db->get_where('role_access_rights', ['id' => $this->session->userdata('rar_id')])->row_array();
-        $data['menux'] = $this->db->get('user_menu')->result_array();
-        // echo 'Selamat datang ' . $data['user']['nama_lengkap'] . ' di FP Rewards';
+        $data['title']  = 'User Role';
+        $data['user']   = $this->db->get_where('tb_user', ['email' => $this->session->userdata('email')])->row_array();
+        $data['menux']  = $this->db->get('tb_menus')->result_array();
+
+        $add['additionalJs'] = 'assets/js/custome-role.js';
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/headbar', $data);
         $this->load->view('administrator/user_roles', $data);
-        $this->load->view('templates/footer');
+        $this->load->view('templates/footer', $add);
     }
 
     public function getRoles()
     {
-        $this->load->model("m_menu");
-        $role = $this->m_menu->selectRole();
+        $this->load->model("menu_model");
+        $role = $this->menu_model->selectRole();
         $data = array();
         $no = 1;
 

@@ -6,6 +6,7 @@ class Menu_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
+        is_logged_in();
     }
 
     public function update_menu($menu_id, $data)
@@ -18,5 +19,14 @@ class Menu_model extends CI_Model
         } else {
             return false;
         }
+    }
+    public function selectRole()
+    {
+        $this->db->SELECT('*');
+        $this->db->FROM('user_role');
+        $this->db->ORDER_BY('role_id', 'DESC');
+        $query = $this->db->get();
+
+        return $query;
     }
 }
