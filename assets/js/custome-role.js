@@ -1,3 +1,24 @@
+function encryptData(data, key) {
+    // Bangkitkan kunci enkripsi dari kunci acak dengan PBKDF2
+    var salt = CryptoJS.lib.WordArray.random(128 / 8); // Salt acak
+    var derivedKey = CryptoJS.PBKDF2(key, salt, {
+        keySize: 256 / 32,
+        iterations: 1000
+    }); // Bangkitkan kunci acak
+
+    // Enkripsi data dengan kunci acak dan vektor inisialisasi acak
+    var iv = CryptoJS.lib.WordArray.random(128 / 8); // Vektor inisialisasi acak
+    var encrypted = CryptoJS.AES.encrypt(data, derivedKey, {
+        iv: iv
+    });
+
+    // Gabungkan salt, vektor inisialisasi, dan data terenkripsi menjadi satu string
+    var saltHex = CryptoJS.enc.Hex.stringify(salt);
+    var ivHex = CryptoJS.enc.Hex.stringify(iv);
+    var encryptedHex = CryptoJS.enc.Hex.stringify(encrypted.ciphertext);
+    return saltHex + ivHex + encryptedHex;
+}
+
 $(document).ready(() => {
     $(".tambah").click(function () {
         $("#newRole").modal('show');
@@ -28,8 +49,10 @@ $(document).ready(() => {
                             method: 'POST',
                             data: form,
                             success: function (data) {
-                                // console.log();
-                                alertSuccess;
+                                // console.log(data);
+                                // alertSuccess;
+                                window.location.reload();
+                                // swal.fire
                             },
                             error: function () {
                                 alert('Error tidak terdefenisi');
@@ -43,7 +66,7 @@ $(document).ready(() => {
         });
     });
     $table = $("#tb_role")
-    $table.bootstrapTable({
+    $table.bootstrapTable('destroy').bootstrapTable({
         url: tabelRole,
         toolbar: '#toolbar',
         pagination: true,
@@ -74,9 +97,9 @@ $(document).ready(() => {
     }
     $('body').on('click', '#tb_role .access', function () { //set access dari role 
         var str = $(this).attr('id-role');
-        var key = "G@ruda7577"; // Kunci enkripsi acak, dapat diganti dengan kunci lain
+        var key = "J35u5!5Gr8G0d"; // Kunci enkripsi acak, dapat diganti dengan kunci lain
         var encryptedData = encryptData(str, key);
-        window.location.href = "<?= base_url('administrator/setAccess/'); ?>" + encryptedData
+        window.location.href = urlAccess + encryptedData
     });
 
     $('body').on('click', '#tb_role .edit', function () { // edit nama role
@@ -101,7 +124,7 @@ $(document).ready(() => {
                 )
             } else {
                 $.ajax({
-                    url: "<?= base_url('administrator/editRole') ?>",
+                    url: editRole,
                     method: 'POST',
                     data: forms,
                     success: function (data) {
@@ -113,7 +136,7 @@ $(document).ready(() => {
                             confirmButtonText: 'Ok!, Terimakasih'
                         }).then((reslt) => {
                             if (reslt.isConfirmed) {
-                                document.location.href = "<?= base_url('administrator/role'); ?>";
+                                window.location.reload();
                             }
                         });
                     }
@@ -122,24 +145,5 @@ $(document).ready(() => {
         });
     });
 
-    function encryptData(data, key) {
-        // Bangkitkan kunci enkripsi dari kunci acak dengan PBKDF2
-        var salt = CryptoJS.lib.WordArray.random(128 / 8); // Salt acak
-        var derivedKey = CryptoJS.PBKDF2(key, salt, {
-            keySize: 256 / 32,
-            iterations: 1000
-        }); // Bangkitkan kunci acak
-
-        // Enkripsi data dengan kunci acak dan vektor inisialisasi acak
-        var iv = CryptoJS.lib.WordArray.random(128 / 8); // Vektor inisialisasi acak
-        var encrypted = CryptoJS.AES.encrypt(data, derivedKey, {
-            iv: iv
-        });
-
-        // Gabungkan salt, vektor inisialisasi, dan data terenkripsi menjadi satu string
-        var saltHex = CryptoJS.enc.Hex.stringify(salt);
-        var ivHex = CryptoJS.enc.Hex.stringify(iv);
-        var encryptedHex = CryptoJS.enc.Hex.stringify(encrypted.ciphertext);
-        return saltHex + ivHex + encryptedHex;
-    }
+    
 });

@@ -390,16 +390,15 @@ class Administrator extends CI_Controller
 
     public function setAccess($encryptedData)
     {
-        $key = "G@ruda7577";
+        $key = "J35u5!5Gr8G0d";
         $id = decryptData($encryptedData, $key);
 
         $data['title'] = 'User Role';
-        $data['user'] = $this->db->get_where('tb_user', ['TXT_EMAIL' => $this->session->userdata('email')])->row_array();
-        $data['rar'] = $this->db->get_where('role_access_rights', ['id' => $this->session->userdata('rar_id')])->row_array();
+        $data['user'] = $this->db->get_where('tb_user', ['email' => $this->session->userdata('email')])->row_array();
         $data['role'] = $this->db->get_where('user_role', ['role_id' => $id])->row_array();
 
-        $this->db->where('id !=', 2);
-        $data['menu'] = $this->db->get('user_menu')->result_array();
+        $this->db->where('menu_id !=', 2);
+        $data['menu'] = $this->db->get('tb_menus')->result_array();
         $data['jumlah'] = count($data['menu']);
 
 

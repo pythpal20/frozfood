@@ -6,6 +6,7 @@
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-lg-8">
+        <?= $this->session->flashdata('message'); ?>
             <div class="ibox">
                 <div class="ibox-title">
                     <h5>Management Roles Of User</h5>
@@ -54,8 +55,40 @@
         </div>
     </div>
 </div>
+
+<div class="modal inmodal animated bounceInDown" data-backdrop="static" data-keyboard="false" id="editRole" tabindex="-1" aria-labelledby="editRoleLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRoleLabel">Edit User Role</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="FormRoleEdit">
+                    <div class="form-group">
+                        <label for="xrole">Nama Role</label>
+                        <input type="hidden" name="xid" id="xid">
+                        <input type="text" class="form-control" name="xrole" id="xrole" placeholder="Isi nama role">
+                    </div>
+                    <div class="form-group">
+                        <label for="xrole">Keterangan</label>
+                        <input type="hidden" name="id" id="id">
+                        <input type="text" class="form-control" name="xketerangan" id="xketerangan" placeholder="Isi keterangan">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary gatti">Ubah</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     let tabelRole = "<?= base_url('administrator/getRoles') ?>";
     let addRole = "<?= base_url("administrator/simpanRole"); ?>";
-    let alertSuccess = "<?= $this->session->flashdata('message'); ?>";
+    let editRole = "<?= base_url('administrator/editRole') ?>";
+    let urlAccess = "<?= base_url('administrator/setAccess/'); ?>";
 </script>
